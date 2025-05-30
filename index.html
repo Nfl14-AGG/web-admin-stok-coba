@@ -1,0 +1,1674 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stok App Pro: Edit & Toggle Form Fix - V13.16 (Editable Login)</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* CSS from Login Gudang Wearpack - START */
+        body, html { /* Combined and adapted for initial state */
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* Will be overridden by Poppins for #app */
+            /* background-color for the curtain page, app itself has its own bg */
+            /* overflow: hidden; /* Initially hidden to prevent scroll during curtain */
+            position: relative; /* For curtain positioning */
+        }
+
+        /* Styles for the Gudang Wearpack login page */
+        .gw-login-body-active {
+            background-color: #e9ecef; /* Latar belakang halaman utama Gudang Wearpack */
+            overflow: hidden; /* Prevent scroll during curtain and login display */
+        }
+        .gw-login-body-inactive {
+            background-color: var(--bg-body); /* Revert to Stok App Pro background */
+            overflow: auto; /* Restore scrolling for the app */
+        }
+
+
+        .curtain-container {
+            width: 100%;
+            height: 100%;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 10000; /* Highest, above everything initially */
+            overflow: hidden;
+        }
+
+        .image-curtain {
+            width: 100%;
+            height: 100%;
+            background-image: url('GAMBAR 2.png'); /* GANTI DENGAN PATH GAMBAR TIRAI ANDA */
+            background-size: cover;
+            background-position: center center;
+            background-repeat: no-repeat;
+            position: absolute;
+            top: 0;
+            left: 0;
+            animation: animateImageCurtain 3s ease-in-out forwards;
+        }
+
+        @keyframes animateImageCurtain {
+            0% {
+                left: 0%;
+                width: 100%;
+                background-position: center center;
+            }
+            25% {
+                left: -40%;
+                width: 100%;
+                background-position: center center;
+            }
+            35% {
+                left: -40%;
+                width: 100%;
+                background-position: center center;
+            }
+            75% {
+                left: 60%;
+                width: 40%;
+                background-position: right center;
+            }
+            100% {
+                left: 60%;
+                width: 40%;
+                background-position: right center;
+            }
+        }
+
+        .page-content-gw { /* Renamed to avoid potential conflict if page-content is used elsewhere */
+            width: 60%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            position: fixed; /* Changed from absolute to fixed to ensure it covers viewport with curtain */
+            top: 0;
+            left: 0;
+            z-index: 9999; /* Below curtain, above app initially */
+            padding: 20px;
+            box-sizing: border-box;
+            /* background-color: #e9ecef; /* Match body background for this section */
+        }
+
+        .logo-container-gw { /* Renamed */
+            opacity: 0;
+            animation: fadeInElementGW 0.8s ease-out forwards;
+            animation-delay: 3s;
+            text-align: center;
+            margin-bottom: 30px;
+            max-width: calc(100% - 40px);
+        }
+
+        .logo-text-gw { /* Renamed */
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #c00;
+        }
+        .logo-text-gw .gw {
+            color: #d4af37;
+            font-size: 1.2em;
+        }
+        .logo-text-gw .tagline {
+            display: block;
+            font-size: 0.4em;
+            color: #333;
+            letter-spacing: 1.5px;
+            margin-top: 5px;
+        }
+
+        .login-form-container-gw { /* Renamed */
+            background-color: #ffffff;
+            padding: 30px 40px;
+            border-radius: 10px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+            width: 100%;
+            max-width: 380px;
+            text-align: center;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: slideUpFadeInFormGW 0.7s ease-out forwards;
+            animation-delay: 3.2s;
+        }
+
+        @keyframes fadeInElementGW { /* Renamed */
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideUpFadeInFormGW { /* Renamed */
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .login-form-container-gw h2 {
+            color: #333;
+            margin-bottom: 25px;
+            font-size: 1.8em;
+        }
+
+        .login-form-container-gw .form-group { /* Added scope */
+            margin-bottom: 18px;
+            text-align: left;
+        }
+
+        .login-form-container-gw .form-group label { /* Added scope */
+            display: block;
+            margin-bottom: 7px;
+            color: #555;
+            font-size: 0.9em;
+        }
+
+        .login-form-container-gw .form-group input { /* Added scope */
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+            font-size: 1em;
+            transition: border-color 0.3s;
+        }
+
+        .login-form-container-gw .form-group input:focus { /* Added scope */
+            border-color: #d4af37;
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(212, 175, 55, 0.2);
+        }
+
+        .login-form-container-gw button[type="submit"] { /* Added scope */
+            background: linear-gradient(135deg, #d4af37, #b8860b);
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1.1em;
+            font-weight: 500;
+            width: 100%;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+
+        .login-form-container-gw button[type="submit"]:hover { /* Added scope */
+            background: linear-gradient(135deg, #b8860b, #a0700a);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+        /* CSS from Login Gudang Wearpack - END */
+
+
+        /* CSS from Stok App Pro - START */
+        :root {
+            --primary-blue: #007BFF;
+            --primary-blue-darker: #0056b3;
+            --primary-blue-light: #e6f2ff;
+            
+            --text-dark: #212529;
+            --text-light: #F8F9FA;
+            --text-muted: #6C757D;
+            
+            --bg-body: #f4f6f9; 
+            --bg-container: #FFFFFF;
+            --bg-card: #FFFFFF; 
+            --bg-input: #FFFFFF;
+
+            --border-color: #dee2e6;
+            --border-color-input: #ced4da;
+            --shadow-soft: rgba(0, 0, 0, 0.05);
+            --shadow-medium: rgba(0, 0, 0, 0.1);
+
+            --font-main: 'Poppins', sans-serif;
+
+            --success-color: #28a745;
+            --error-color: #dc3545;
+            --warning-color: #ffc107; 
+            --info-color: #17a2b8; 
+        }
+
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        /* body styling for Stok App will be applied when GW login is hidden */
+        body { /* This font-family will apply once #app is primary */
+            font-family: var(--font-main); 
+            /* background-color: var(--bg-body); /* Managed by .gw-login-body-active/inactive */
+            color: var(--text-dark);
+            line-height: 1.6; 
+            /* display: flex; justify-content: center; align-items: flex-start; /* This might conflict with GW login */
+            min-height: 100vh; 
+            /* padding: 20px; /* This might conflict with GW login */
+        }
+        /* body.dashboard-active {
+            display: flex; justify-content: center; align-items: flex-start;
+            padding: 20px;
+        } */
+
+
+        #app {
+            width: 100%; max-width: 1200px; background-color: var(--bg-container);
+            border-radius: 10px; box-shadow: 0 8px 25px var(--shadow-medium); overflow: hidden;
+            margin: 20px auto; /* Added margin for when it's visible */
+            display: none; /* Initially hidden */
+        }
+        
+        /* Original login-section from Stok App Pro is removed, so its styles are not needed */
+        /* #login-section { ... } */
+        /* .login-box { ... } */
+        /* etc. */
+
+        section { display: none; } /* For dashboard tabs */
+        section.active-section { display: block; }
+
+
+        #dashboard-section { padding: 0; } 
+        #dashboard-section header {
+            background-color: var(--bg-container); color: var(--text-dark); padding: 18px 30px;
+            display: flex; justify-content: space-between; align-items: center;
+            border-bottom: 1px solid var(--border-color);
+        }
+        #dashboard-section header h1 { color: var(--primary-blue); font-size: 1.7rem; font-weight: 600; }
+        #logout-button {
+            background-color: var(--error-color); color: white; padding: 8px 16px;
+            border: none; border-radius: 5px; font-weight: 500; cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+        #logout-button:hover { background-color: #c82333; }
+
+        .tabs {
+            background-color: var(--primary-blue-light); padding: 0 30px;
+            border-bottom: 1px solid var(--border-color); display: flex; 
+        }
+        .tab-button {
+            padding: 15px 20px; cursor: pointer; border: none; border-bottom: 3px solid transparent; 
+            background-color: transparent; color: var(--text-muted); font-size: 0.95rem;
+            font-weight: 500; margin-right: 5px; 
+            transition: color 0.2s ease, border-color 0.2s ease; outline: none;
+        }
+        .tab-button:hover { color: var(--primary-blue); }
+        .tab-button.active { color: var(--primary-blue); border-bottom-color: var(--primary-blue); font-weight: 600; }
+
+        .tab-content { padding: 25px 30px; display: none; }
+        .tab-content.active { display: block; }
+        .tab-content > h3.tab-main-title { 
+            font-size: 1.6rem; 
+            color: var(--text-dark); 
+            margin-bottom: 20px; 
+            font-weight: 600; 
+            padding-bottom: 12px; 
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .two-column-layout { display: flex; gap: 25px; transition: gap 0.3s ease; }
+        .column-left { 
+            flex-grow: 0; 
+            flex-shrink: 0; 
+            flex-basis: 400px; 
+            max-width: 400px;
+            opacity: 1;
+            overflow: visible;
+            transition: flex-basis 0.3s ease-out, max-width 0.3s ease-out, opacity 0.2s ease-out, padding 0.3s ease-out, margin 0.3s ease-out, visibility 0.3s linear;
+            visibility: visible;
+        }
+        .column-right { 
+            flex-grow: 1; 
+            flex-basis: 0; 
+            min-width: 0; 
+            transition: flex-basis 0.3s ease-out, max-width 0.3s ease-out;
+        }
+
+        .two-column-layout.form-bahan-hidden .column-left {
+            max-width: 0px !important;
+            flex-basis: 0px !important;
+            opacity: 0;
+            padding:0 !important; 
+            margin:0 !important;
+            overflow: hidden;
+            visibility: hidden;
+        }
+        .two-column-layout.form-bahan-hidden {
+            gap: 0; 
+        }
+        .two-column-layout.form-bahan-hidden .column-right {
+            flex-basis: 100%; 
+            max-width: 100%;
+        }
+
+        #form-tambah-barang {
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+
+        fieldset {
+            border: 1px solid var(--border-color); border-radius: 8px; padding: 20px;
+            margin-bottom: 25px; background-color: var(--bg-card); 
+            box-shadow: 0 2px 5px var(--shadow-soft);
+            position: relative; 
+        }
+        legend {
+            font-weight: 600; font-size: 1.1rem; color: var(--primary-blue);
+            padding: 0 10px; margin-left: 10px; 
+        }
+        #kelola-stok .column-left fieldset { 
+            margin-bottom: 15px; 
+        }
+
+        form label { display: block; margin-bottom: 6px; font-weight: 500; font-size: 0.9rem; color: var(--text-muted); }
+        form input[type="text"], form input[type="number"], form input[type="date"], form select, form textarea, form input[type="password"] {
+            width: 100%; padding: 10px 12px; margin-bottom: 15px; 
+            border: 1px solid var(--border-color-input); border-radius: 6px; 
+            font-size: 0.95rem; font-family: var(--font-main); background-color: var(--bg-input); 
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+        form input[type="text"]:focus, form input[type="number"]:focus, form input[type="date"]:focus, form select:focus, form textarea:focus, form input[type="password"]:focus {
+            border-color: var(--primary-blue); box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25); outline: none;
+        }
+        form input[disabled], form select[disabled], .color-input-container input[type="color"]:disabled {
+            background-color: #e9ecef; cursor: not-allowed; opacity: 0.7;
+        }
+        form small { display: block; margin-top: -10px; margin-bottom: 15px; font-size: 0.8rem; color: var(--text-muted); }
+        .color-input-container { display: flex; align-items: center; margin-bottom: 15px; }
+        .color-input-container input[type="text"] { flex-grow: 1; margin-bottom: 0; margin-right: 8px; }
+        .color-input-container input[type="color"] {
+            padding: 2px; border: 1px solid var(--border-color-input); border-radius: 6px;
+            height: 42px; width: 42px; cursor: pointer; background-color: var(--bg-input); 
+        }
+        .form-stok-update-fields { display: none; } 
+        .form-stok-update-fields.edit-mode { display: block; } 
+
+        .show-form-button-alt-container { 
+            margin-bottom: 20px;
+            text-align: left; 
+        }
+        .show-form-button-alt {
+            display: inline-block; padding: 10px 18px; font-size: 1rem; font-weight: 600;
+            color: white; background-color: var(--error-color); 
+            border: none; border-radius: 6px; cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+        .show-form-button-alt:hover { background-color: #c82333; }
+
+
+        .close-form-btn {
+            position: absolute; top: 10px; right: 15px; font-size: 1.8rem;
+            color: var(--text-muted); cursor: pointer; line-height: 1; padding: 5px;
+        }
+        .close-form-btn:hover { color: var(--error-color); }
+
+
+        form .button-group { margin-top: 20px; display: flex; gap: 10px; }
+        form button { padding: 10px 20px; font-size: 0.95rem; font-weight: 500; border-radius: 6px; cursor: pointer; transition: all 0.2s ease; border: none; }
+        button#submit-bahan-button, button#submit-transaksi-button, button#submitUbahKredensialGW { background-color: var(--primary-blue); color: white; }
+        button#submit-bahan-button:hover, button#submit-transaksi-button:hover, button#submitUbahKredensialGW:hover { background-color: var(--primary-blue-darker); }
+        button#clear-form-button, button#clear-form-transaksi-button { background-color: var(--text-muted); color: white; }
+        button#clear-form-button:hover, button#clear-form-transaksi-button:hover { background-color: #5a6268; }
+
+        .filter-container { 
+            margin-bottom: 20px; padding: 18px; background-color: var(--bg-card); 
+            border-radius: 8px; border: 1px solid var(--border-color);
+            box-shadow: 0 2px 5px var(--shadow-soft);
+        }
+        .filter-container h4 { 
+            font-size: 1.1rem; font-weight: 600; color: var(--primary-blue);
+            margin-top:0; margin-bottom: 15px; padding-bottom: 8px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .filter-container label { margin-bottom: 5px; display: block; font-weight: 500; font-size: 0.9rem; }
+        .filter-container select, .filter-container input[type="text"] {
+            width: 100%; 
+            padding: 9px 12px; border-radius: 6px; border: 1px solid var(--border-color-input);
+            font-size: 0.9rem; margin-bottom: 10px; 
+        }
+        
+        .summary-card { 
+            background-color: var(--bg-card); padding: 20px; border-radius: 8px;
+            margin-bottom: 20px; border: 1px solid var(--border-color);
+            box-shadow: 0 2px 5px var(--shadow-soft);
+        }
+        .summary-card h4 {
+            font-size: 1.2rem; color: var(--primary-blue); margin-top:0; margin-bottom: 15px;
+            font-weight: 600; padding-bottom: 10px; border-bottom: 1px solid var(--border-color);
+        }
+        .financial-summary { display: flex; justify-content: space-around; margin-top: 10px; flex-wrap: wrap; }
+        .summary-item { text-align: center; margin: 5px 10px; }
+        .summary-item p { margin: 0 0 5px 0; font-size: 0.9rem; color: var(--text-muted); }
+        .summary-item span { font-size: 1.25rem; font-weight: 600; }
+        .summary-item .pemasukan { color: var(--success-color); }
+        .summary-item .pengeluaran { color: var(--error-color); }
+        .summary-item .saldo, .summary-item .netral { color: var(--primary-blue); }
+
+
+        .table-wrapper { overflow-x: auto; border: 1px solid var(--border-color); border-radius: 8px; margin-top: 0; }
+        table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+        th, td { border-bottom: 1px solid var(--border-color); padding: 12px 15px; text-align: left; vertical-align: middle; }
+        tr:last-child td { border-bottom: none; }
+        th {
+            background-color: #f1f3f5; font-weight: 600; color: var(--text-dark); 
+            text-transform: capitalize; font-size: 0.85rem;
+            border-bottom-width: 2px; border-bottom-color: var(--border-color);
+        }
+        tbody tr:hover { background-color: var(--primary-blue-light); }
+        .color-swatch {
+            display: inline-block; width: 18px; height: 18px; border: 1px solid var(--border-color); 
+            margin-right: 8px; vertical-align: middle; border-radius: 4px; 
+        }
+        td .action-btn-group { display: flex; gap: 5px; }
+        td .action-btn-group button { 
+            padding: 6px 8px; font-size: 1rem; line-height: 1; border-radius: 5px;
+            color: white; border: none; transition: background-color 0.2s ease;
+            display: inline-flex; align-items: center; justify-content: center;
+            width: 30px; height: 30px;
+        }
+        .update-stok-btn.masuk, .pemasukan-label { background-color: var(--success-color); color:white; } 
+        .update-stok-btn.masuk:hover { background-color: #1e7e34; }
+        .update-stok-btn.keluar, .pengeluaran-label { background-color: var(--warning-color); color: var(--text-dark); } 
+        .update-stok-btn.keluar:hover { background-color: #e0a800; }
+        .edit-stok-btn, .edit-transaksi-btn { background-color: var(--info-color); } 
+        .edit-stok-btn:hover, .edit-transaksi-btn:hover { background-color: #117a8b; }
+        .delete-stok-btn, .delete-transaksi-btn { background-color: var(--error-color); } 
+        .delete-stok-btn:hover, .delete-transaksi-btn:hover { background-color: #c82333; }
+
+        #area-laporan h3 { 
+            text-align: center; font-size: 1.3rem; color: var(--text-dark);
+            margin-bottom: 20px; font-weight: 600;
+        }
+        #cetak-laporan-button {
+            background-color: var(--primary-blue); color: white; padding: 10px 18px;
+            font-weight: 500; border:none; margin-bottom: 15px; 
+        }
+        #cetak-laporan-button:hover { background-color: var(--primary-blue-darker); }
+        
+        .modal { 
+            display: none; position: fixed; z-index: 1000; left: 0; top: 0;
+            width: 100%; height: 100%; overflow: auto; background-color: rgba(33, 37, 41, 0.5); 
+            padding-top: 50px; 
+        }
+        .modal-content {
+            background-color: var(--bg-container); margin: 0 auto; padding: 25px 30px;
+            border: none; width: 90%; max-width: 500px; border-radius: 8px;
+            box-shadow: 0 5px 15px var(--shadow-medium); position: relative; 
+        }
+        .modal-content h3 {
+            font-size: 1.4rem; margin-top: 0; color: var(--text-dark);
+            padding-bottom: 15px; border-bottom: 1px solid var(--border-color);
+            margin-bottom: 20px; font-weight: 600;
+        }
+        .modal-content p { margin-bottom: 10px; font-size: 0.95rem; }
+        .modal-content p strong { color: var(--text-dark); font-weight: 500; }
+        .modal-content label { font-weight: 500; display: block; margin-top:15px; margin-bottom:6px;}
+        .modal-content input[type="number"], .modal-content textarea {
+            width: 100%; padding: 10px 12px; margin-bottom: 15px;
+            border: 1px solid var(--border-color-input); border-radius: 6px;
+            font-family: var(--font-main);
+        }
+        .modal-content input[type="number"]:focus, .modal-content textarea:focus {
+            border-color: var(--primary-blue); box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25); outline: none;
+        }
+        .modal-content .button-group { margin-top: 25px; text-align: right; }
+        .modal-content .button-group button { padding: 10px 20px; font-weight: 500; border-radius: 6px; }
+        .modal-content .submit-stok-btn { background-color: var(--primary-blue); color: white; border:none;}
+        .modal-content .submit-stok-btn:hover { background-color: var(--primary-blue-darker); }
+        .modal-content .cancel-btn { background-color: var(--text-muted); color: white; border:none; }
+        .modal-content .cancel-btn:hover { background-color: #5a6268; }
+        .close-btn {
+            color: #888; position: absolute; top: 15px; right: 20px;
+            font-size: 26px; font-weight: bold; transition: color 0.2s ease;
+        }
+        .close-btn:hover, .close-btn:focus { color: var(--text-dark); text-decoration: none; cursor: pointer; }
+        /* CSS from Stok App Pro - END */
+    </style>
+</head>
+<body class="gw-login-body-active"> <div class="curtain-container" id="gw-curtain-container">
+        <div class="image-curtain"></div>
+    </div>
+
+    <div class="page-content-gw" id="gw-page-content">
+        <div class="logo-container-gw" id="logoContainerGW">
+            <div class="logo-text-gw">
+                <span class="gw">GW</span> GUDANG WEARPACK
+                <span class="tagline">WORKING AND STYLISH</span>
+            </div>
+        </div>
+
+        <div class="login-form-container-gw" id="loginFormContainerGW">
+            <h2>Login Akun</h2>
+            <form id="loginFormElementGW">
+                <div class="form-group">
+                    <label for="usernameGW">Username</label>
+                    <input type="text" id="usernameGW" name="usernameGW" required placeholder="Username Anda">
+                </div>
+                <div class="form-group">
+                    <label for="passwordGW">Password</label>
+                    <input type="password" id="passwordGW" name="passwordGW" required placeholder="Password Anda">
+                </div>
+                <button type="submit">MASUK</button>
+                <p id="gw-login-error" style="color:red; margin-top:10px; font-size:0.9em;"></p>
+            </form>
+        </div>
+    </div>
+    <div id="app">
+        <section id="dashboard-section">
+            <header>
+                <h1>Aplikasi Stok & Keuangan</h1>
+                <button id="logout-button">Logout</button>
+            </header>
+
+            <div class="tabs">
+                <button class="tab-button active" data-tab="kelola-stok">Kelola Stok</button> 
+                <button class="tab-button" data-tab="laporan-stok">Laporan Stok</button>
+                <button class="tab-button" data-tab="keuangan">Keuangan</button>
+                <button class="tab-button" data-tab="pengaturan-akun">Pengaturan Akun</button> </div>
+
+            <div id="kelola-stok" class="tab-content active">
+                <h3 class="tab-main-title">Manajemen Persediaan Bahan</h3>
+                <div class="two-column-layout" id="kelola-stok-layout"> 
+                    <div class="column-left">
+                        <form id="form-tambah-barang" style="display: block;"> <fieldset>
+                                <legend>Input / Edit Data Bahan <span class="close-form-btn" id="close-form-bahan-btn" title="Sembunyikan Form">&times;</span></legend>
+                                <input type="hidden" id="bahan-id"> 
+                                <label for="kategori_bahan">Kategori Bahan:</label>
+                                <select id="kategori_bahan" required>
+                                    <option value="">Pilih Kategori...</option>
+                                    <option value="Wearpack">Wearpack (Kain Utama)</option>
+                                    <option value="Kaos">Kaos (Kain Utama)</option>
+                                    <option value="Aksesoris Wearpack">Aksesoris Wearpack</option>
+                                    <option value="Aksesoris Kaos">Aksesoris Kaos</option>
+                                    <option value="Lainnya">Lainnya</option>
+                                </select>
+                                <label for="nama_bahan">Nama Bahan:</label>
+                                <input type="text" id="nama_bahan" list="datalist-nama-bahan" required placeholder="Misal: American Drill"> 
+                                    <datalist id="wearpack-kain-list">
+                                        <option value="American Drill"></option><option value="Japan Drill"></option><option value="Nagata Drill"></option><option value="Taipan Drill"></option><option value="Polyester (Wearpack)"></option><option value="Twill"></option><option value="Kanvas"></option><option value="Baby Canvas"></option><option value="Katun Kanvas"></option><option value="Ripstop"></option><option value="Nomex/Aramid/Kevlar"></option><option value="Taipan Tropical"></option><option value="Raphael"></option>
+                                    </datalist>
+                                    <datalist id="kaos-kain-list">
+                                        <option value="Cotton Combed 20s"></option><option value="Cotton Combed 24s"></option><option value="Cotton Combed 30s"></option><option value="Cotton Combed 40s"></option><option value="Cotton Carded"></option><option value="Cotton Bamboo"></option><option value="Polyester (Kaos/Jersey)"></option><option value="Viscose"></option><option value="Teteron Cotton (TC)"></option><option value="Hyget"></option><option value="Spandex/Lycra/Elastane"></option>
+                                    </datalist>
+                                    <datalist id="aksesoris-wearpack-list">
+                                        <option value="Reflektor/Scotlite"></option><option value="Ritsleting YKK"></option><option value="Ritsleting Resin"></option><option value="Ritsleting Plastik"></option><option value="Kancing (Wearpack)"></option><option value="Benang Jahit (Wearpack)"></option>
+                                    </datalist>
+                                    <datalist id="aksesoris-kaos-list">
+                                        <option value="Benang Jahit (Kaos)"></option><option value="Ribbing (Leher/Lengan)"></option><option value="Tinta Sablon Plastisol"></option><option value="Tinta Sablon Rubber"></option><option value="Tinta Sablon Water-based"></option><option value="Kertas Transfer"></option><option value="PET Film (DTF)"></option><option value="Label Merek"></option><option value="Label Ukuran"></option>
+                                    </datalist>
+                                <label for="warna_bahan_text">Warna (Nama atau Kode HEX):</label>
+                                <div class="color-input-container">
+                                    <input type="text" id="warna_bahan_text" list="datalist-warna-bahan" placeholder="Misal: Merah, #FF0000">
+                                    <input type="color" id="warna_picker_helper" title="Pilih warna" value="#007BFF"> 
+                                </div>
+                                    <datalist id="fabric-colors-list">
+                                        <option value="Hitam"></option><option value="#000000"></option><option value="Putih"></option><option value="#FFFFFF"></option><option value="Merah"></option><option value="#FF0000"></option><option value="Biru Navy"></option><option value="#000080"></option><option value="Biru Benhur"></option><option value="#0000FF"></option><option value="Hijau Army"></option><option value="#4B5320"></option><option value="Abu-abu Tua"></option><option value="#A9A9A9"></option><option value="Abu-abu Muda"></option><option value="#D3D3D3"></option>
+                                    </datalist>
+                                    <datalist id="accessories-colors-list">
+                                        <option value="Hitam"></option><option value="#000000"></option><option value="Putih"></option><option value="#FFFFFF"></option><option value="Silver"></option><option value="#C0C0C0"></option><option value="Gold"></option><option value="#FFD700"></option>
+                                    </datalist>
+                                    <datalist id="specific-item-colors-list">
+                                        <option value="Silver (Reflektor)"></option><option value="#C0C0C0"></option><option value="Kuning Stabilo (Reflektor)"></option><option value="#DAFF00"></option> </datalist>
+                                <label for="satuan">Satuan:</label>
+                                <input type="text" id="satuan" placeholder="Contoh: Meter, Pcs, Kg" required>
+                            </fieldset>
+                            <fieldset>
+                                <legend>Detail Kuantitas</legend>
+                                <label for="stok_awal">Stok Awal:</label>
+                                <input type="number" id="stok_awal" min="0" value="0" required>
+                                <small>Untuk input awal atau jika ada penyesuaian total.</small>
+
+                                <div class="form-stok-update-fields" id="edit-stok-fields">
+                                    <label for="tambah_stok_masuk">Tambah Stok Masuk (Penyesuaian):</label>
+                                    <input type="number" id="tambah_stok_masuk" min="0" value="0">
+                                    <label for="tambah_stok_keluar">Tambah Stok Keluar (Penyesuaian):</label>
+                                    <input type="number" id="tambah_stok_keluar" min="0" value="0">
+                                    <small>Isi jika ada penyesuaian stok masuk/keluar langsung dari form ini.</small>
+                                </div>
+
+                                <label for="keterangan_bahan">Keterangan (Opsional):</label>
+                                <textarea id="keterangan_bahan" rows="2" placeholder="Detail tambahan..."></textarea>
+                            </fieldset>
+                            <div class="button-group">
+                                <button type="submit" id="submit-bahan-button">Simpan Bahan</button>
+                                <button type="button" id="clear-form-button">Clear</button>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="column-right">
+                        <div class="toggle-form-button-container" id="show-form-alt-container"> 
+                            <button id="show-form-bahan-button-alt" class="show-form-button-alt" style="display: none;">Input / Edit Data Bahan</button>
+                        </div>
+                        <div id="ringkasan-stok" class="summary-card">
+                            <h4>Ringkasan Stok</h4>
+                            <div class="financial-summary">
+                                <div class="summary-item">
+                                    <p>Total Jenis Bahan</p>
+                                    <span id="total-jenis-bahan" class="netral">0</span>
+                                </div>
+                                <div class="summary-item">
+                                    <p>Total Stok Akhir</p>
+                                    <span id="total-stok-akhir-global" class="netral">0</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="filter-container"> 
+                            <h4>Filter & Pencarian Stok</h4>
+                            <label for="filter-kategori-stok">Kategori:</label>
+                            <select id="filter-kategori-stok">
+                                <option value="semua">Semua</option>
+                                <option value="Wearpack">Wearpack (Kain Utama)</option>
+                                <option value="Kaos">Kaos (Kain Utama)</option>
+                                <option value="Aksesoris Wearpack">Aksesoris Wearpack</option>
+                                <option value="Aksesoris Kaos">Aksesoris Kaos</option>
+                                <option value="Lainnya">Lainnya</option>
+                            </select>
+                            <label for="search-nama-bahan">Cari Bahan/Warna:</label>
+                            <input type="text" id="search-nama-bahan" placeholder="Ketik nama atau warna...">
+                        </div>
+                        <div class="table-wrapper"> 
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Nama Bahan</th><th>Kategori</th><th>Warna</th><th>Satuan</th>
+                                        <th>Stok Awal</th><th>Masuk</th><th>Keluar</th><th>Stok Akhir</th>
+                                        <th>Ket.</th><th>Update</th><th>Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tabel-stok-body"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="laporan-stok" class="tab-content">
+                <h3 class="tab-main-title">Laporan Stok Persediaan</h3>
+                <div class="filter-container" style="justify-content: flex-start; padding: 18px 0;"> 
+                    <label for="filter-kategori-laporan">Kategori:</label>
+                    <select id="filter-kategori-laporan" style="margin-right:15px;">
+                        <option value="semua">Semua</option>
+                        <option value="Wearpack">Wearpack (Kain Utama)</option>
+                        <option value="Kaos">Kaos (Kain Utama)</option>
+                        <option value="Aksesoris Wearpack">Aksesoris Wearpack</option>
+                        <option value="Aksesoris Kaos">Aksesoris Kaos</option>
+                        <option value="Lainnya">Lainnya</option>
+                    </select>
+                    <button id="cetak-laporan-button">Cetak Laporan</button>
+                </div>
+                <div id="area-laporan" class="table-wrapper"></div>
+            </div>
+
+            <div id="keuangan" class="tab-content">
+                <h3 class="tab-main-title">Manajemen Keuangan</h3>
+                <div class="two-column-layout">
+                    <div class="column-left">
+                        <form id="formTambahTransaksi">
+                            <fieldset>
+                                <legend>Input Transaksi</legend>
+                                <input type="hidden" id="transaksi-id">
+                                <label for="tanggal_transaksi">Tanggal:</label>
+                                <input type="date" id="tanggal_transaksi" required>
+                                <label for="deskripsi_transaksi">Deskripsi:</label>
+                                <input type="text" id="deskripsi_transaksi" placeholder="Misal: Pembelian Kain Drill" required>
+                                <label for="jenis_transaksi">Jenis:</label>
+                                <select id="jenis_transaksi" required>
+                                    <option value="Pengeluaran">Pengeluaran</option>
+                                    <option value="Pemasukan">Pemasukan</option>
+                                </select>
+                                <label for="jumlah_transaksi">Jumlah (Rp):</label>
+                                <input type="number" id="jumlah_transaksi" min="0" placeholder="Contoh: 500000" required>
+                                <label for="kategori_transaksi">Kategori:</label>
+                                <input type="text" id="kategori_transaksi" list="kategori-keuangan-list" placeholder="Misal: Pembelian Bahan">
+                                <datalist id="kategori-keuangan-list">
+                                    <option value="Pembelian Bahan Baku"></option><option value="Biaya Operasional"></option>
+                                    <option value="Pendapatan Penjualan"></option><option value="Modal Awal"></option>
+                                    <option value="Gaji Karyawan"></option><option value="Transportasi"></option>
+                                    <option value="Lain-lain"></option>
+                                </datalist>
+                                <div class="button-group">
+                                    <button type="submit" id="submit-transaksi-button">Simpan</button>
+                                    <button type="button" id="clear-form-transaksi-button">Clear</button>
+                                </div>
+                            </fieldset>
+                        </form>
+                    </div>
+                    <div class="column-right">
+                        <div id="ringkasan-keuangan" class="summary-card"> 
+                            <h4>Ringkasan Keuangan</h4>
+                            <div class="financial-summary">
+                                <div class="summary-item">
+                                    <p>Total Pemasukan</p>
+                                    <span id="total-pemasukan" class="pemasukan">Rp 0</span>
+                                </div>
+                                <div class="summary-item">
+                                    <p>Total Pengeluaran</p>
+                                    <span id="total-pengeluaran" class="pengeluaran">Rp 0</span>
+                                </div>
+                                <div class="summary-item">
+                                    <p>Saldo Akhir</p>
+                                    <span id="saldo-akhir" class="saldo">Rp 0</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="table-wrapper" style="margin-top: 20px;">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Tanggal</th><th>Deskripsi</th><th>Kategori</th>
+                                        <th>Pemasukan</th><th>Pengeluaran</th><th>Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tabelTransaksiBody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="pengaturan-akun" class="tab-content">
+                <h3 class="tab-main-title">Pengaturan Akun Login</h3>
+                <div class="two-column-layout">
+                    <div class="column-left" style="flex-basis: 450px; max-width: 450px;">
+                        <form id="formUbahKredensialGW">
+                            <fieldset>
+                                <legend>Ubah Username & Password Login</legend>
+                                <label for="currentPasswordGW">Password Saat Ini:</label>
+                                <input type="password" id="currentPasswordGW" required placeholder="Masukkan password Anda saat ini">
+
+                                <label for="newUsernameGW">Username Baru (opsional):</label>
+                                <input type="text" id="newUsernameGW" placeholder="Biarkan kosong jika tidak ingin mengubah">
+                                <small>Minimal 3 karakter jika diisi.</small>
+
+                                <label for="newPasswordGW">Password Baru (opsional):</label>
+                                <input type="password" id="newPasswordGW" placeholder="Biarkan kosong jika tidak ingin mengubah">
+                                <small>Minimal 3 karakter jika diisi.</small>
+
+                                <label for="confirmNewPasswordGW">Konfirmasi Password Baru:</label>
+                                <input type="password" id="confirmNewPasswordGW" placeholder="Ketik ulang password baru">
+                                <small>Harus sama dengan Password Baru.</small>
+
+                                <div class="button-group">
+                                    <button type="submit" id="submitUbahKredensialGW">Simpan Perubahan</button>
+                                </div>
+                                <p id="gw-credential-change-feedback" style="margin-top:15px; font-size:0.9em; font-weight:500;"></p>
+                            </fieldset>
+                        </form>
+                    </div>
+                    <div class="column-right">
+                        <div class="summary-card">
+                            <h4>Informasi Akun Saat Ini</h4>
+                            <p style="font-size: 0.95rem;">Username: <strong id="currentGWUsernameDisplay">-</strong></p>
+                            <p style="margin-top: 15px; font-size: 0.9rem; color: var(--text-muted);">
+                                Gunakan formulir di sebelah kiri untuk mengubah detail login Anda.
+                                Pastikan untuk mengingat kredensial baru Anda setelah melakukan perubahan.
+                                Jika Anda lupa, Anda mungkin perlu mereset data aplikasi (yang akan menghapus semua data stok dan keuangan juga) atau mengedit `localStorage` secara manual melalui Developer Tools browser.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </section> 
+
+        <div id="stokUpdateModal" class="modal">
+            <div class="modal-content">
+                <span class="close-btn" id="closeStokModalBtn">&times;</span>
+                <h3 id="stokModalTitle">Update Kuantitas Stok</h3>
+                <p><strong>Nama Bahan:</strong> <span id="modalNamaBahan"></span></p>
+                <p><strong>Warna:</strong> <span id="modalWarnaBahan"></span></p>
+                <p><strong>Stok Saat Ini:</strong> <span id="modalStokSaatIni"></span></p>
+                <form id="formUpdateStok">
+                    <input type="hidden" id="modalBahanId"><input type="hidden" id="modalAksiStok"> 
+                    <label for="modalJumlahStok">Jumlah Perubahan:</label>
+                    <input type="number" id="modalJumlahStok" min="1" required>
+                    <label for="modalCatatanStok">Catatan (Opsional):</label>
+                    <textarea id="modalCatatanStok" rows="2" placeholder="Contoh: Pembelian baru, Untuk produksi X"></textarea>
+                    <div class="button-group">
+                        <button type="button" class="cancel-btn" id="cancelStokModalBtn">Batal</button>
+                        <button type="submit" class="submit-stok-btn">Simpan Stok</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div> 
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- Gudang Wearpack (GW) Login Elements ---
+            const gwCurtainContainer = document.getElementById('gw-curtain-container');
+            const gwPageContent = document.getElementById('gw-page-content');
+            const loginFormElementGW = document.getElementById('loginFormElementGW');
+            const usernameGWInput = document.getElementById('usernameGW');
+            const passwordGWInput = document.getElementById('passwordGW');
+            const gwLoginError = document.getElementById('gw-login-error');
+            const appContainer = document.getElementById('app');
+
+
+            // --- Stok App Pro (SAP) DOM Elements ---
+            const dashboardSection = document.getElementById('dashboard-section'); 
+            const logoutButton = document.getElementById('logout-button');
+
+            const tabButtons = document.querySelectorAll('.tab-button');
+            const tabContents = document.querySelectorAll('.tab-content');
+
+            const formTambahBarang = document.getElementById('form-tambah-barang');
+            const bahanIdInput = document.getElementById('bahan-id');
+            const namaBahanInput = document.getElementById('nama_bahan');
+            const kategoriBahanInput = document.getElementById('kategori_bahan');
+            const warnaBahanTextInput = document.getElementById('warna_bahan_text'); 
+            const warnaPickerHelper = document.getElementById('warna_picker_helper'); 
+            const satuanInput = document.getElementById('satuan');
+            const stokAwalInput = document.getElementById('stok_awal');
+            const keteranganBahanInput = document.getElementById('keterangan_bahan');
+            const submitBahanButton = document.getElementById('submit-bahan-button');
+            const clearFormButton = document.getElementById('clear-form-button');
+            
+            const editStokFieldsDiv = document.getElementById('edit-stok-fields'); 
+            const tambahStokMasukInput = document.getElementById('tambah_stok_masuk');
+            const tambahStokKeluarInput = document.getElementById('tambah_stok_keluar');
+            
+            const showFormBahanButtonAlt = document.getElementById('show-form-bahan-button-alt'); 
+            
+            const closeFormBahanBtn = document.getElementById('close-form-bahan-btn');
+            const kelolaStokLayout = document.getElementById('kelola-stok-layout'); 
+
+
+            const tabelStokBody = document.getElementById('tabel-stok-body');
+            const filterKategoriStok = document.getElementById('filter-kategori-stok');
+            const searchNamaBahanInput = document.getElementById('search-nama-bahan');
+            const totalJenisBahanEl = document.getElementById('total-jenis-bahan'); 
+            const totalStokAkhirGlobalEl = document.getElementById('total-stok-akhir-global'); 
+
+            const filterKategoriLaporan = document.getElementById('filter-kategori-laporan');
+            const cetakLaporanButton = document.getElementById('cetak-laporan-button');
+            const areaLaporan = document.getElementById('area-laporan');
+
+            const stokUpdateModal = document.getElementById('stokUpdateModal');
+            const closeStokModalBtn = document.getElementById('closeStokModalBtn');
+            const cancelStokModalBtn = document.getElementById('cancelStokModalBtn');
+            const formUpdateStok = document.getElementById('formUpdateStok');
+            const stokModalTitle = document.getElementById('stokModalTitle');
+            const modalNamaBahan = document.getElementById('modalNamaBahan');
+            const modalWarnaBahan = document.getElementById('modalWarnaBahan');
+            const modalStokSaatIni = document.getElementById('modalStokSaatIni');
+            const modalBahanIdInput = document.getElementById('modalBahanId');
+            const modalAksiStokInput = document.getElementById('modalAksiStok');
+            const modalJumlahStokInput = document.getElementById('modalJumlahStok');
+            const modalCatatanStokInput = document.getElementById('modalCatatanStok');
+
+            const formTambahTransaksi = document.getElementById('formTambahTransaksi');
+            const transaksiIdInput = document.getElementById('transaksi-id'); 
+            const tanggalTransaksiInput = document.getElementById('tanggal_transaksi');
+            const deskripsiTransaksiInput = document.getElementById('deskripsi_transaksi');
+            const jenisTransaksiInput = document.getElementById('jenis_transaksi');
+            const jumlahTransaksiInput = document.getElementById('jumlah_transaksi');
+            const kategoriTransaksiInput = document.getElementById('kategori_transaksi');
+            const submitTransaksiButton = document.getElementById('submit-transaksi-button');
+            const clearFormTransaksiButton = document.getElementById('clear-form-transaksi-button');
+            const tabelTransaksiBody = document.getElementById('tabelTransaksiBody');
+            const totalPemasukanEl = document.getElementById('total-pemasukan');
+            const totalPengeluaranEl = document.getElementById('total-pengeluaran');
+            const saldoAkhirEl = document.getElementById('saldo-akhir');
+            
+            // Pengaturan Akun GW Elements
+            const formUbahKredensialGW = document.getElementById('formUbahKredensialGW');
+            const currentPasswordGWInput = document.getElementById('currentPasswordGW');
+            const newUsernameGWInput = document.getElementById('newUsernameGW');
+            const newPasswordGWInput = document.getElementById('newPasswordGW');
+            const confirmNewPasswordGWInput = document.getElementById('confirmNewPasswordGW');
+            // const submitUbahKredensialGWButton = document.getElementById('submitUbahKredensialGW'); // Already in form buttons
+            const gwCredentialChangeFeedback = document.getElementById('gw-credential-change-feedback');
+            const currentGWUsernameDisplay = document.getElementById('currentGWUsernameDisplay');
+
+
+            // --- Data & State (SAP & GW Credentials) ---
+            const gwAppUsernameKey = 'gwAppUsername_v13_16_editable';
+            const gwAppPasswordKey = 'gwAppPassword_v13_16_editable';
+
+            // Initialize GW credentials from localStorage or set defaults
+            if (!localStorage.getItem(gwAppUsernameKey)) {
+                localStorage.setItem(gwAppUsernameKey, 'adminGW');
+            }
+            if (!localStorage.getItem(gwAppPasswordKey)) {
+                localStorage.setItem(gwAppPasswordKey, '123');
+            }
+
+            let currentStoredGWUsername = localStorage.getItem(gwAppUsernameKey);
+            let currentStoredGWPassword = localStorage.getItem(gwAppPasswordKey);
+
+            let stokBahan = JSON.parse(localStorage.getItem('stokBahanAppV13_16_merged')) || [];
+            let isLoggedIn = JSON.parse(localStorage.getItem('isLoggedInAppV13_16_merged')) || false;
+            let transaksiKeuangan = JSON.parse(localStorage.getItem('transaksiKeuanganAppV13_16_merged')) || [];
+
+
+            // --- Helper Functions (SAP & GW) ---
+            function saveStokToLocalStorage() { localStorage.setItem('stokBahanAppV13_16_merged', JSON.stringify(stokBahan)); }
+            function saveTransaksiToLocalStorage() { localStorage.setItem('transaksiKeuanganAppV13_16_merged', JSON.stringify(transaksiKeuangan)); }
+            function saveLoginState() { localStorage.setItem('isLoggedInAppV13_16_merged', JSON.stringify(isLoggedIn)); }
+            function generateId() { return Date.now().toString(36) + Math.random().toString(36).substr(2, 5); }
+            
+            function saveGWCredentials() {
+                localStorage.setItem(gwAppUsernameKey, currentStoredGWUsername);
+                localStorage.setItem(gwAppPasswordKey, currentStoredGWPassword);
+            }
+
+            function showSection(sectionId) { 
+                document.querySelectorAll('#app section').forEach(sec => {
+                    sec.classList.remove('active-section');
+                });
+                const sectionToShow = document.getElementById(sectionId);
+                if (sectionToShow) {
+                    sectionToShow.classList.add('active-section');
+                }
+            }
+            function isValidHexColor(hex) {
+                return typeof hex === 'string' && hex.match(/^#[0-9a-fA-F]{6}$/);
+            }
+            function formatRupiah(angka) {
+                return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(angka);
+            }
+            
+            function switchToAppView() {
+                if (gwCurtainContainer) gwCurtainContainer.style.display = 'none';
+                if (gwPageContent) gwPageContent.style.display = 'none';
+                if (appContainer) appContainer.style.display = 'block';
+                document.body.classList.remove('gw-login-body-active');
+                document.body.classList.add('gw-login-body-inactive');
+
+                document.body.style.display = 'flex';
+                document.body.style.justifyContent = 'center';
+                document.body.style.alignItems = 'flex-start';
+                document.body.style.padding = '20px';
+
+                showSection('dashboard-section'); 
+                // Determine active tab or default
+                const activeTabButton = document.querySelector('#app .tab-button.active');
+                const initialTab = activeTabButton ? activeTabButton.dataset.tab : 'kelola-stok';
+                activateTab(initialTab, 'default'); 
+            }
+
+            function switchToLoginView() {
+                if (gwCurtainContainer) gwCurtainContainer.style.display = 'block'; 
+                if (gwPageContent) gwPageContent.style.display = 'flex'; 
+                if (appContainer) appContainer.style.display = 'none';
+                document.body.classList.add('gw-login-body-active');
+                document.body.classList.remove('gw-login-body-inactive');
+                
+                document.body.style.display = ''; 
+                document.body.style.justifyContent = '';
+                document.body.style.alignItems = '';
+                document.body.style.padding = '';
+                if(usernameGWInput) usernameGWInput.focus();
+            }
+
+
+            // --- GW Login Logic ---
+            if (loginFormElementGW) {
+                loginFormElementGW.addEventListener('submit', function(event) {
+                    event.preventDefault();
+                    const username = usernameGWInput.value;
+                    const password = passwordGWInput.value;
+
+                    if (username === currentStoredGWUsername && password === currentStoredGWPassword) {
+                        gwLoginError.textContent = '';
+                        isLoggedIn = true;
+                        saveLoginState();
+                        switchToAppView();
+                    } else {
+                        gwLoginError.textContent = 'Username atau Password salah!';
+                        isLoggedIn = false;
+                        saveLoginState();
+                    }
+                });
+            }
+            const curtainContainerForTimeout = document.querySelector('.curtain-container');
+            setTimeout(() => {
+                if (curtainContainerForTimeout) {
+                    curtainContainerForTimeout.style.pointerEvents = 'none';
+                }
+            }, 3000); 
+
+
+            // --- SAP Functions ---
+            function toggleFormBahanContentVisibility(show) {
+                if (formTambahBarang && showFormBahanButtonAlt && kelolaStokLayout) {
+                    if (show) {
+                        formTambahBarang.style.display = 'block';
+                        showFormBahanButtonAlt.style.display = 'none'; 
+                        kelolaStokLayout.classList.remove('form-bahan-hidden');
+                    } else {
+                        formTambahBarang.style.display = 'none';
+                        showFormBahanButtonAlt.style.display = 'inline-block'; 
+                        kelolaStokLayout.classList.add('form-bahan-hidden');
+                    }
+                }
+            }
+
+
+            function clearFormBahan() {
+                if(formTambahBarang) formTambahBarang.reset(); 
+                if(bahanIdInput) bahanIdInput.value = '';
+                if(stokAwalInput) {
+                    stokAwalInput.disabled = false;
+                    stokAwalInput.value = "0"; 
+                    stokAwalInput.style.display = 'block'; 
+                    const labelStokAwal = document.querySelector('label[for="stok_awal"]');
+                    if(labelStokAwal) labelStokAwal.style.display = 'block';
+                    const smallElStokAwal = stokAwalInput.nextElementSibling;
+                    if(smallElStokAwal && smallElStokAwal.tagName === 'SMALL') smallElStokAwal.style.display = 'block';
+                }
+                
+                if(editStokFieldsDiv) editStokFieldsDiv.classList.remove('edit-mode');
+                if(tambahStokMasukInput) tambahStokMasukInput.value = "0";
+                if(tambahStokKeluarInput) tambahStokKeluarInput.value = "0";
+
+                if(namaBahanInput) namaBahanInput.setAttribute('list', ''); 
+                if(warnaBahanTextInput) warnaBahanTextInput.setAttribute('list', ''); 
+                if(kategoriBahanInput) kategoriBahanInput.value = ""; 
+                if(submitBahanButton) submitBahanButton.textContent = 'Tambah Bahan';
+                updateNamaBahanDatalist(); 
+                updateWarnaDatalistAndPicker(); 
+                if(warnaPickerHelper) warnaPickerHelper.value = getComputedStyle(document.documentElement).getPropertyValue('--primary-blue').trim() || '#007BFF'; 
+                if(namaBahanInput) namaBahanInput.focus();
+            }
+
+            function clearFormTransaksi() {
+                if(formTambahTransaksi) formTambahTransaksi.reset();
+                if(transaksiIdInput) transaksiIdInput.value = ''; 
+                if(tanggalTransaksiInput) tanggalTransaksiInput.valueAsDate = new Date(); 
+                if(deskripsiTransaksiInput) deskripsiTransaksiInput.focus();
+            }
+
+            function updateNamaBahanDatalist() {
+                if (!kategoriBahanInput || !namaBahanInput) return; 
+                const selectedKategori = kategoriBahanInput.value;
+                let datalistId = '';
+                if (selectedKategori === 'Wearpack') datalistId = 'wearpack-kain-list';
+                else if (selectedKategori === 'Kaos') datalistId = 'kaos-kain-list';
+                else if (selectedKategori === 'Aksesoris Wearpack') datalistId = 'aksesoris-wearpack-list';
+                else if (selectedKategori === 'Aksesoris Kaos') datalistId = 'aksesoris-kaos-list';
+                namaBahanInput.setAttribute('list', datalistId);
+            }
+
+            function updateWarnaDatalistAndPicker() {
+                if (!kategoriBahanInput || !namaBahanInput || !warnaBahanTextInput || !warnaPickerHelper) return; 
+                const selectedKategori = kategoriBahanInput.value;
+                const selectedNamaBahan = namaBahanInput.value.toLowerCase();
+                let colorDatalistId = '';
+                warnaBahanTextInput.disabled = false; 
+                warnaPickerHelper.disabled = false;
+                warnaBahanTextInput.placeholder = "Nama warna atau #HEX";
+
+                if (selectedKategori === 'Wearpack' || selectedKategori === 'Kaos') {
+                    colorDatalistId = 'fabric-colors-list';
+                } else if (selectedKategori === 'Aksesoris Wearpack' || selectedKategori === 'Aksesoris Kaos') {
+                    colorDatalistId = 'accessories-colors-list';
+                    if (selectedNamaBahan.includes('reflektor') || selectedNamaBahan.includes('scotlite')) {
+                        colorDatalistId = 'specific-item-colors-list';
+                    } else if (selectedNamaBahan.includes('kertas') || selectedNamaBahan.includes('film') || selectedNamaBahan.includes('label')) {
+                        if (!bahanIdInput || !bahanIdInput.value) { 
+                            warnaBahanTextInput.value = 'N/A';
+                        }
+                        warnaBahanTextInput.disabled = true; 
+                        warnaPickerHelper.disabled = true;
+                        warnaBahanTextInput.placeholder = "Tidak relevan";
+                        colorDatalistId = '';
+                    }
+                } else if (selectedKategori === 'Lainnya') {
+                    colorDatalistId = ''; 
+                }
+                
+                warnaBahanTextInput.setAttribute('list', colorDatalistId);
+                if (isValidHexColor(warnaBahanTextInput.value) && !warnaBahanTextInput.disabled) {
+                    warnaPickerHelper.value = warnaBahanTextInput.value;
+                } else if (warnaBahanTextInput.disabled) {
+                    warnaPickerHelper.value = '#E9ECEF'; 
+                }
+            }
+
+            function handleLogout() { 
+                isLoggedIn = false; 
+                saveLoginState(); 
+                switchToLoginView(); 
+            }
+
+            function activateTab(tabId, context = 'default') { 
+                tabContents.forEach(content => content.classList.remove('active'));
+                tabButtons.forEach(button => button.classList.remove('active'));
+                const tabToActivate = document.getElementById(tabId);
+                const buttonToActivate = document.querySelector(`.tab-button[data-tab="${tabId}"]`);
+                if (tabToActivate) tabToActivate.classList.add('active');
+                if (buttonToActivate) buttonToActivate.classList.add('active');
+                
+                if (tabId === 'kelola-stok') {
+                    if (context === 'default') {
+                        clearFormBahan();
+                        toggleFormBahanContentVisibility(false); 
+                    } else if (context === 'edit') {
+                        // editBahan will call toggleFormBahanContentVisibility(true)
+                    }
+                    renderTabelStok();
+                    renderRingkasanStok(); 
+                } else if (tabId === 'laporan-stok') {
+                    renderLaporanStok();
+                } else if (tabId === 'keuangan') {
+                    if (context === 'default' && formTambahTransaksi) {
+                        clearFormTransaksi();
+                    }
+                    if(tanggalTransaksiInput && context === 'default') tanggalTransaksiInput.valueAsDate = new Date(); 
+                    renderTabelTransaksi();
+                    renderRingkasanKeuangan();
+                } else if (tabId === 'pengaturan-akun') {
+                    if (currentGWUsernameDisplay) {
+                        currentGWUsernameDisplay.textContent = currentStoredGWUsername;
+                    }
+                    if (formUbahKredensialGW) formUbahKredensialGW.reset();
+                    if (gwCredentialChangeFeedback) gwCredentialChangeFeedback.textContent = '';
+                    if (currentPasswordGWInput) currentPasswordGWInput.focus();
+                }
+            }
+
+            function handleSubmitBahan(event) {
+                event.preventDefault();
+                const id = bahanIdInput.value;
+                const nama = namaBahanInput.value.trim();
+                const kategori = kategoriBahanInput.value; 
+                const warna = warnaBahanTextInput.disabled ? 'N/A' : warnaBahanTextInput.value.trim(); 
+                const satuan = satuanInput.value.trim();
+                const stokAwal = parseInt(stokAwalInput.value); 
+                const keterangan = keteranganBahanInput.value.trim();
+
+                const tambahanMasuk = (id && tambahStokMasukInput && editStokFieldsDiv.classList.contains('edit-mode')) ? (parseInt(tambahStokMasukInput.value) || 0) : 0;
+                const tambahanKeluar = (id && tambahStokKeluarInput && editStokFieldsDiv.classList.contains('edit-mode')) ? (parseInt(tambahStokKeluarInput.value) || 0) : 0;
+
+                if (!nama || !kategori || !satuan || (isNaN(stokAwal) && !id) ) { 
+                    alert('Mohon isi semua field dasar bahan (Nama, Kategori, Satuan, Stok Awal) dengan benar.'); return;
+                }
+                if (id && (tambahanMasuk < 0 || tambahanKeluar < 0)) { 
+                    alert('Jumlah tambahan stok masuk/keluar tidak boleh negatif.'); return;
+                }
+
+                if (id) { 
+                    const index = stokBahan.findIndex(b => b.id === id);
+                    if (index > -1) {
+                        stokBahan[index].nama = nama; 
+                        stokBahan[index].kategori = kategori; 
+                        stokBahan[index].warna = warna; 
+                        stokBahan[index].satuan = satuan; 
+                        stokBahan[index].keterangan = keterangan; 
+                        
+                        if (tambahanMasuk > 0) {
+                            stokBahan[index].stokMasuk += tambahanMasuk;
+                        }
+                        if (tambahanKeluar > 0) {
+                            let stokTersediaSaatIni = stokBahan[index].stokAwal + stokBahan[index].stokMasuk - stokBahan[index].stokKeluar;
+                            if (tambahanKeluar > stokTersediaSaatIni) {
+                                alert(`Stok keluar (${tambahanKeluar}) melebihi stok yang tersedia (${stokTersediaSaatIni})!`);
+                                return;
+                            }
+                            stokBahan[index].stokKeluar += tambahanKeluar;
+                        }
+                        
+                        stokBahan[index].tanggalUpdate = new Date().toISOString();
+                        alert('Bahan berhasil diperbarui!');
+                    }
+                } else { 
+                    stokBahan.push({
+                        id: generateId(), nama, kategori, warna, satuan, stokAwal, 
+                        stokMasuk: 0, 
+                        stokKeluar: 0, 
+                        get stokAkhir() { return this.stokAwal + this.stokMasuk - this.stokKeluar; },
+                        keterangan, tanggalUpdate: new Date().toISOString()
+                    });
+                    alert('Bahan baru berhasil ditambahkan!');
+                }
+                saveStokToLocalStorage(); 
+                clearFormBahan(); 
+                toggleFormBahanContentVisibility(false); 
+                renderTabelStok(); 
+                renderRingkasanStok(); 
+                if (document.getElementById('laporan-stok') && document.getElementById('laporan-stok').classList.contains('active')) renderLaporanStok();
+            }
+
+            function renderTabelStok(filterKategori = filterKategoriStok ? filterKategoriStok.value : 'semua', searchTerm = searchNamaBahanInput ? searchNamaBahanInput.value : '') {
+                if(!tabelStokBody) return;
+                tabelStokBody.innerHTML = '';
+                const lowerSearchTerm = searchTerm.toLowerCase();
+                const filteredStok = stokBahan.filter(b => 
+                    (filterKategori === 'semua' || b.kategori === filterKategori) &&
+                    (!lowerSearchTerm || b.nama.toLowerCase().includes(lowerSearchTerm) || (b.warna && b.warna.toLowerCase().includes(lowerSearchTerm)))
+                );
+
+                if (filteredStok.length === 0) {
+                    tabelStokBody.innerHTML = `<tr><td colspan="11" style="text-align:center; padding: 20px;">Belum ada data bahan atau tidak ditemukan.</td></tr>`; return;
+                }
+                filteredStok.sort((a, b) => a.nama.localeCompare(b.nama));
+                filteredStok.forEach(bahan => {
+                    const tr = document.createElement('tr');
+                    let warnaDisplay = bahan.warna || '-';
+                    if (isValidHexColor(bahan.warna) && bahan.warna.toUpperCase() !== '#N/A' && bahan.warna !== 'N/A') { 
+                        warnaDisplay = `<span class="color-swatch" style="background-color:${bahan.warna};"></span> ${bahan.warna}`;
+                    }
+
+                    tr.innerHTML = `
+                        <td>${bahan.nama}</td><td>${bahan.kategori}</td><td>${warnaDisplay}</td><td>${bahan.satuan}</td><td>${bahan.stokAwal}</td><td>${bahan.stokMasuk}</td><td>${bahan.stokKeluar}</td><td><b>${bahan.stokAkhir}</b></td><td>${bahan.keterangan || '-'}</td><td>${new Date(bahan.tanggalUpdate).toLocaleDateString('id-ID', {day:'2-digit', month:'short', year:'numeric'})}</td>
+                        <td class="action-btn-group">
+                            <button class="update-stok-btn masuk" data-id="${bahan.id}" data-aksi="masuk" title="Stok Masuk Cepat">➕</button>
+                            <button class="update-stok-btn keluar" data-id="${bahan.id}" data-aksi="keluar" title="Stok Keluar Cepat">➖</button>
+                            <button class="edit-stok-btn" data-id="${bahan.id}" title="Edit Detail & Stok">✏️</button>
+                            <button class="delete-stok-btn" data-id="${bahan.id}" title="Hapus Bahan">🗑️</button>
+                        </td>`;
+                    tabelStokBody.appendChild(tr);
+                });
+            }
+            function renderRingkasanStok() {
+                if (!totalJenisBahanEl || !totalStokAkhirGlobalEl) return; 
+
+                totalJenisBahanEl.textContent = stokBahan.length;
+                let totalStokGlobal = 0;
+                stokBahan.forEach(bahan => {
+                    totalStokGlobal += bahan.stokAkhir;
+                });
+                totalStokAkhirGlobalEl.textContent = totalStokGlobal;
+            }
+
+
+            function handleAksiStok(event) {
+                const target = event.target.closest('button'); if (!target) return;
+                const bahanId = target.dataset.id; const aksi = target.dataset.aksi;
+
+                if (target.classList.contains('delete-stok-btn')) {
+                    const bDel = stokBahan.find(b => b.id === bahanId);
+                    if (confirm(`Yakin hapus "${bDel ? bDel.nama : 'bahan ini'}"?`)) {
+                        stokBahan = stokBahan.filter(b => b.id !== bahanId); saveStokToLocalStorage();
+                        renderTabelStok(); renderRingkasanStok(); 
+                        if (document.getElementById('laporan-stok') && document.getElementById('laporan-stok').classList.contains('active')) renderLaporanStok();
+                    }
+                } else if (target.classList.contains('edit-stok-btn')) {
+                    editBahan(bahanId); 
+                } else if (target.classList.contains('update-stok-btn') && (aksi === 'masuk' || aksi === 'keluar')) {
+                    showStokUpdateModal(bahanId, aksi); 
+                }
+            }
+            
+            function editBahan(id) {
+                const bahan = stokBahan.find(b => b.id === id); if (!bahan) return;
+                
+                activateTab('kelola-stok', 'edit'); 
+
+                bahanIdInput.value = bahan.id; 
+                namaBahanInput.value = bahan.nama; 
+                kategoriBahanInput.value = bahan.kategori; 
+                
+                warnaBahanTextInput.value = bahan.warna || ''; 
+                
+                updateNamaBahanDatalist(); 
+                updateWarnaDatalistAndPicker(); 
+                
+                if (!warnaBahanTextInput.disabled && isValidHexColor(bahan.warna)) {
+                    warnaPickerHelper.value = bahan.warna;
+                } else if (!warnaBahanTextInput.disabled) {
+                    warnaPickerHelper.value = getComputedStyle(document.documentElement).getPropertyValue('--primary-blue').trim() || '#007BFF'; 
+                }
+
+                satuanInput.value = bahan.satuan; 
+                stokAwalInput.value = bahan.stokAwal; 
+                stokAwalInput.disabled = true; 
+                stokAwalInput.style.display = 'block';
+                const labelStokAwal = document.querySelector('label[for="stok_awal"]');
+                if(labelStokAwal) labelStokAwal.style.display = 'block';
+                const smallElStokAwal = stokAwalInput.nextElementSibling;
+                if(smallElStokAwal && smallElStokAwal.tagName === 'SMALL') smallElStokAwal.style.display = 'block';
+
+                keteranganBahanInput.value = bahan.keterangan;
+
+                if(editStokFieldsDiv) editStokFieldsDiv.classList.add('edit-mode');
+                if(tambahStokMasukInput) tambahStokMasukInput.value = "0";
+                if(tambahStokKeluarInput) tambahStokKeluarInput.value = "0";
+                
+                submitBahanButton.textContent = 'Update Bahan'; 
+                namaBahanInput.focus();
+                toggleFormBahanContentVisibility(true); // Ensure form is visible for editing
+            }
+            
+            if(showFormBahanButtonAlt && formTambahBarang && kelolaStokLayout) {
+                showFormBahanButtonAlt.addEventListener('click', function() {
+                    clearFormBahan(); 
+                    toggleFormBahanContentVisibility(true); 
+                });
+            }
+            if (closeFormBahanBtn && formTambahBarang && kelolaStokLayout) {
+                closeFormBahanBtn.addEventListener('click', function() {
+                    toggleFormBahanContentVisibility(false); 
+                });
+            }
+
+            function showStokUpdateModal(bahanId, aksi) {
+                const bahan = stokBahan.find(b => b.id === bahanId);
+                if (!bahan) return;
+                modalBahanIdInput.value = bahanId; modalAksiStokInput.value = aksi;
+                stokModalTitle.textContent = `Update Kuantitas Stok ${aksi === 'masuk' ? 'Masuk' : 'Keluar'}`;
+                modalNamaBahan.textContent = bahan.nama;
+                let warnaDisplayModal = bahan.warna || '-';
+                if (isValidHexColor(bahan.warna) && bahan.warna.toUpperCase() !== '#N/A' && bahan.warna !== 'N/A') {
+                    warnaDisplayModal = `<span class="color-swatch" style="background-color:${bahan.warna};"></span> ${bahan.warna}`;
+                }
+                modalWarnaBahan.innerHTML = warnaDisplayModal; 
+                modalStokSaatIni.textContent = bahan.stokAkhir;
+                modalJumlahStokInput.value = ''; modalCatatanStokInput.value = ''; 
+                stokUpdateModal.style.display = 'block'; modalJumlahStokInput.focus();
+            }
+            function hideStokUpdateModal() { stokUpdateModal.style.display = 'none'; }
+
+            formUpdateStok.addEventListener('submit', function(event) {
+                event.preventDefault();
+                const bahanId = modalBahanIdInput.value; const aksi = modalAksiStokInput.value; const jumlah = parseInt(modalJumlahStokInput.value);
+                const bahan = stokBahan.find(b => b.id === bahanId);
+                if (!bahan || isNaN(jumlah) || jumlah <= 0) { alert('Jumlah tidak valid.'); return; }
+                if (aksi === 'masuk') bahan.stokMasuk += jumlah;
+                else if (aksi === 'keluar') {
+                    if (jumlah > bahan.stokAkhir) { alert(`Stok keluar (${jumlah}) > stok akhir (${bahan.stokAkhir})!`); return; }
+                    bahan.stokKeluar += jumlah;
+                }
+                bahan.tanggalUpdate = new Date().toISOString();
+                saveStokToLocalStorage(); 
+                renderTabelStok(); 
+                renderRingkasanStok(); 
+                if (document.getElementById('laporan-stok') && document.getElementById('laporan-stok').classList.contains('active')) renderLaporanStok();
+                if (document.getElementById('keuangan') && document.getElementById('keuangan').classList.contains('active')) renderRingkasanKeuangan(); 
+                hideStokUpdateModal();
+            });
+            if(closeStokModalBtn) closeStokModalBtn.addEventListener('click', hideStokUpdateModal);
+            if(cancelStokModalBtn) cancelStokModalBtn.addEventListener('click', hideStokUpdateModal);
+            window.addEventListener('click', function(event) { if (event.target == stokUpdateModal) hideStokUpdateModal(); });
+
+            function renderLaporanStok(filterKategori = filterKategoriLaporan ? filterKategoriLaporan.value : 'semua') {
+                if(!areaLaporan) return;
+                areaLaporan.innerHTML = '';
+                const filteredStok = stokBahan.filter(b => filterKategori === 'semua' || b.kategori === filterKategori);
+                if (filteredStok.length === 0) {
+                    areaLaporan.innerHTML = `<h3 class="tab-main-title" style="text-align:center; margin-bottom:0; font-size:1.3rem; border-bottom:none;">Laporan Stok Persediaan</h3><p style="text-align:center; padding: 20px;">Tidak ada data stok untuk ditampilkan.</p>`; return;
+                }
+                let totalItems = 0, totalStokAkhirKeseluruhan = 0;
+                let htmlLaporan = `<h3 class="tab-main-title" style="text-align:center; margin-bottom:15px; border-bottom:none;">Laporan Stok Persediaan per ${new Date().toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</h3>
+                    <div class="table-wrapper"><table><thead><tr><th>No.</th><th>Nama Bahan</th><th>Kategori</th><th>Warna</th><th>Satuan</th><th>Stok Awal</th><th>Masuk</th><th>Keluar</th><th>Stok Akhir</th></tr></thead><tbody>`;
+                filteredStok.sort((a,b) => a.nama.localeCompare(b.nama)).forEach((b, i) => {
+                    let warnaDisplayLaporan = b.warna || '-';
+                    if (isValidHexColor(b.warna) && b.warna.toUpperCase() !== '#N/A' && b.warna !== 'N/A') {
+                        warnaDisplayLaporan = `<span class="color-swatch" style="background-color:${b.warna};"></span> ${b.warna}`;
+                    }
+                    htmlLaporan += `<tr><td>${i+1}</td><td>${b.nama}</td><td>${b.kategori}</td><td>${warnaDisplayLaporan}</td><td>${b.satuan}</td><td>${b.stokAwal}</td><td>${b.stokMasuk}</td><td>${b.stokKeluar}</td><td><b>${b.stokAkhir}</b></td></tr>`;
+                    totalItems++; totalStokAkhirKeseluruhan += b.stokAkhir;
+                });
+                htmlLaporan += `</tbody><tfoot><tr><td colspan="8" style="text-align:right; font-weight:bold;">Total Jenis Bahan:</td><td style="font-weight:bold;">${totalItems}</td></tr>
+                    <tr><td colspan="8" style="text-align:right; font-weight:bold;">Total Keseluruhan Stok Akhir:</td><td style="font-weight:bold;">${totalStokAkhirKeseluruhan}</td></tr></tfoot></table></div>`;
+                areaLaporan.innerHTML = htmlLaporan;
+            }
+            
+            function handleCetakLaporan() {
+                const areaCetak = document.getElementById('area-laporan');
+                if (!areaCetak) { alert("Area laporan tidak ditemukan."); return; }
+                const konten = areaCetak.innerHTML;
+                if (!konten.includes("<table>")) { alert("Tidak ada data laporan untuk dicetak."); return; }
+                
+                const pW = window.open('', '_blank', 'height=700,width=900');
+                pW.document.write(`<html><head><title>Laporan Stok - Cetak</title><style>
+                    /* Variabel CSS untuk print, didefinisikan di :root agar global */
+                    :root { 
+                        --primary-blue-print: #007BFF; 
+                        --text-dark-print: #212529;
+                        --header-bg-print: #E9ECEF;
+                        --border-color-print: #BFBFBF;
+                    }
+                    body{font-family: 'Poppins', Arial,sans-serif;margin:20px;color: var(--text-dark-print);}
+                    table{width:100%;border-collapse:collapse;font-size:9pt} 
+                    th,td{border:1px solid var(--border-color-print);padding:5px 7px;text-align:left;vertical-align:middle}
+                    th{background-color: var(--header-bg-print);color:var(--primary-blue-print); font-weight:600; text-transform:capitalize;}
+                    .table-wrapper > h3, #area-laporan > h3 {text-align:center;margin-bottom:15px;font-size:14pt; color: var(--text-dark-print); font-weight:600;}
+                    .color-swatch{display:inline-block;width:12px;height:12px;border:1px solid #999;margin-right:4px;vertical-align:middle;}
+                    tfoot td {font-weight:bold; background-color:var(--header-bg-print);}
+                    @page{size:A4 landscape;margin:15mm 10mm;}
+                    @media print{
+                        body{margin:0;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+                        .no-print{display:none;} 
+                    }
+                </style></head><body>${konten}</body></html>`);
+                pW.document.close(); 
+                pW.focus(); 
+                setTimeout(() => { 
+                    try {
+                        pW.print(); 
+                    } catch (e) {
+                        console.error("Gagal print:", e);
+                        alert("Gagal membuka dialog print. Pastikan pop-up tidak diblokir.");
+                    }
+                }, 500); 
+            }
+
+            function handleSubmitTransaksi(event) {
+                event.preventDefault();
+                const id = transaksiIdInput.value; 
+                const tanggal = tanggalTransaksiInput.value;
+                const deskripsi = deskripsiTransaksiInput.value.trim();
+                const jenis = jenisTransaksiInput.value;
+                const jumlah = parseFloat(jumlahTransaksiInput.value);
+                const kategori = kategoriTransaksiInput.value.trim();
+
+                if (!tanggal || !deskripsi || !jenis || isNaN(jumlah) || jumlah <= 0) {
+                    alert("Mohon isi semua field transaksi dengan benar (Tanggal, Deskripsi, Jenis, Jumlah > 0).");
+                    return;
+                }
+                
+                const newTransaksi = {
+                    id: generateId(), tanggal, deskripsi, jenis, jumlah, kategori,
+                    tanggalInput: new Date().toISOString() 
+                };
+                transaksiKeuangan.push(newTransaksi);
+                
+                saveTransaksiToLocalStorage();
+                renderTabelTransaksi();
+                renderRingkasanKeuangan();
+                clearFormTransaksi();
+                alert("Transaksi keuangan berhasil ditambahkan!");
+            }
+
+            function renderTabelTransaksi() {
+                if (!tabelTransaksiBody) return; 
+                tabelTransaksiBody.innerHTML = '';
+                const sortedTransaksi = [...transaksiKeuangan].sort((a,b) => new Date(b.tanggal) - new Date(a.tanggal));
+
+                if (sortedTransaksi.length === 0) {
+                    tabelTransaksiBody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:20px;">Belum ada data transaksi.</td></tr>`;
+                    return;
+                }
+                sortedTransaksi.forEach(trx => {
+                    const tr = document.createElement('tr');
+                    const pemasukan = trx.jenis === 'Pemasukan' ? formatRupiah(trx.jumlah) : '-';
+                    const pengeluaran = trx.jenis === 'Pengeluaran' ? formatRupiah(trx.jumlah) : '-';
+                    
+                    const tgl = new Date(trx.tanggal);
+                    const tglAdjusted = new Date(tgl.getTime() + (tgl.getTimezoneOffset() * 60000)); 
+                    const tglFormatted = tglAdjusted.toLocaleDateString('id-ID', {day: '2-digit', month: 'short', year: 'numeric'});
+
+
+                    tr.innerHTML = `
+                        <td>${tglFormatted}</td>
+                        <td>${trx.deskripsi}</td>
+                        <td>${trx.kategori || '-'}</td>
+                        <td style="color: var(--success-color); text-align:right;">${pemasukan}</td>
+                        <td style="color: var(--error-color); text-align:right;">${pengeluaran}</td>
+                        <td class="action-btn-group">
+                            <button class="delete-transaksi-btn" data-id="${trx.id}" title="Hapus Transaksi">🗑️</button>
+                        </td>
+                    `;
+                    tabelTransaksiBody.appendChild(tr);
+                });
+            }
+            
+            function renderRingkasanKeuangan() {
+                if (!totalPemasukanEl || !totalPengeluaranEl || !saldoAkhirEl) return; 
+
+                let totalPemasukan = 0;
+                let totalPengeluaran = 0;
+
+                transaksiKeuangan.forEach(trx => {
+                    if (trx.jenis === 'Pemasukan') {
+                        totalPemasukan += trx.jumlah;
+                    } else if (trx.jenis === 'Pengeluaran') {
+                        totalPengeluaran += trx.jumlah;
+                    }
+                });
+                const saldoAkhir = totalPemasukan - totalPengeluaran;
+
+                totalPemasukanEl.textContent = formatRupiah(totalPemasukan);
+                totalPengeluaranEl.textContent = formatRupiah(totalPengeluaran);
+                saldoAkhirEl.textContent = formatRupiah(saldoAkhir);
+                
+                saldoAkhirEl.style.color = saldoAkhir < 0 ? 'var(--error-color)' : 'var(--primary-blue)';
+            }
+
+            function hapusTransaksi(transaksiId) {
+                const trxToDelete = transaksiKeuangan.find(t => t.id === transaksiId);
+                if (confirm(`Yakin ingin menghapus transaksi: "${trxToDelete ? trxToDelete.deskripsi : 'ini'}"? Aksi ini tidak dapat dibatalkan.`)) {
+                    transaksiKeuangan = transaksiKeuangan.filter(trx => trx.id !== transaksiId);
+                    saveTransaksiToLocalStorage();
+                    renderTabelTransaksi();
+                    renderRingkasanKeuangan();
+                    alert("Transaksi berhasil dihapus.");
+                }
+            }
+
+            // --- GW Credential Change Logic ---
+            function handleSubmitUbahKredensialGW(event) {
+                event.preventDefault();
+                if (!currentPasswordGWInput || !newUsernameGWInput || !newPasswordGWInput || !confirmNewPasswordGWInput || !gwCredentialChangeFeedback) return;
+
+                const currentPasswordAttempt = currentPasswordGWInput.value;
+                const newUsername = newUsernameGWInput.value.trim();
+                const newPassword = newPasswordGWInput.value; // Don't trim passwords
+                const confirmNewPassword = confirmNewPasswordGWInput.value;
+
+                gwCredentialChangeFeedback.textContent = ''; // Clear previous feedback
+
+                if (currentPasswordAttempt !== currentStoredGWPassword) {
+                    gwCredentialChangeFeedback.style.color = 'var(--error-color)';
+                    gwCredentialChangeFeedback.textContent = 'Password saat ini salah!';
+                    currentPasswordGWInput.focus();
+                    return;
+                }
+
+                let usernameChanged = false;
+                let passwordChanged = false;
+
+                if (newUsername && newUsername !== currentStoredGWUsername) {
+                    if (newUsername.length < 3) {
+                        gwCredentialChangeFeedback.style.color = 'var(--error-color)';
+                        gwCredentialChangeFeedback.textContent = 'Username baru minimal 3 karakter.';
+                        newUsernameGWInput.focus();
+                        return;
+                    }
+                    usernameChanged = true;
+                }
+
+                if (newPassword) { // If new password field is not empty
+                    if (newPassword.length < 3) {
+                        gwCredentialChangeFeedback.style.color = 'var(--error-color)';
+                        gwCredentialChangeFeedback.textContent = 'Password baru minimal 3 karakter.';
+                        newPasswordGWInput.focus();
+                        return;
+                    }
+                    if (newPassword !== confirmNewPassword) {
+                        gwCredentialChangeFeedback.style.color = 'var(--error-color)';
+                        gwCredentialChangeFeedback.textContent = 'Konfirmasi password baru tidak cocok!';
+                        confirmNewPasswordGWInput.focus();
+                        return;
+                    }
+                    passwordChanged = true;
+                }
+
+                if (!usernameChanged && !passwordChanged) {
+                    gwCredentialChangeFeedback.style.color = 'var(--warning-color)';
+                    gwCredentialChangeFeedback.textContent = 'Tidak ada perubahan yang dimasukkan.';
+                    return;
+                }
+
+                let successMessage = 'Perubahan berhasil disimpan:';
+                if (usernameChanged) {
+                    currentStoredGWUsername = newUsername;
+                    successMessage += ' Username telah diubah.';
+                }
+                if (passwordChanged) {
+                    currentStoredGWPassword = newPassword;
+                    successMessage += ' Password telah diubah.';
+                }
+
+                saveGWCredentials();
+                gwCredentialChangeFeedback.style.color = 'var(--success-color)';
+                gwCredentialChangeFeedback.textContent = successMessage;
+                if(formUbahKredensialGW) formUbahKredensialGW.reset();
+                if (currentGWUsernameDisplay) {
+                    currentGWUsernameDisplay.textContent = currentStoredGWUsername;
+                }
+                alert('Kredensial login berhasil diubah. Harap ingat kredensial baru Anda.');
+            }
+
+
+            // --- Initial Setup and Event Listeners ---
+            if (isLoggedIn) { 
+                switchToAppView();
+            } else { 
+                switchToLoginView();
+            }
+
+            if(logoutButton) logoutButton.addEventListener('click', handleLogout);
+            
+            tabButtons.forEach(btn => {
+                btn.addEventListener('click', () => activateTab(btn.dataset.tab, 'default')); // Use default context for tab clicks
+            });
+            
+            if(kategoriBahanInput) kategoriBahanInput.addEventListener('change', () => {
+                updateNamaBahanDatalist();
+                updateWarnaDatalistAndPicker(); 
+            }); 
+            if(namaBahanInput) namaBahanInput.addEventListener('input', updateWarnaDatalistAndPicker); 
+            
+            if(warnaPickerHelper) warnaPickerHelper.addEventListener('input', function() { 
+                if(warnaBahanTextInput) {
+                    warnaBahanTextInput.value = this.value;
+                    warnaBahanTextInput.disabled = false; 
+                }
+            });
+            if(warnaBahanTextInput) warnaBahanTextInput.addEventListener('input', function() { 
+                if (isValidHexColor(this.value) && warnaPickerHelper) {
+                    warnaPickerHelper.value = this.value;
+                }
+            });
+
+            if(formTambahBarang) formTambahBarang.addEventListener('submit', handleSubmitBahan);
+            if(clearFormButton) clearFormButton.addEventListener('click', clearFormBahan); 
+            if(tabelStokBody) tabelStokBody.addEventListener('click', handleAksiStok);
+            
+            if(formTambahTransaksi) formTambahTransaksi.addEventListener('submit', handleSubmitTransaksi);
+            if(clearFormTransaksiButton) clearFormTransaksiButton.addEventListener('click', clearFormTransaksi);
+            if(tabelTransaksiBody) {
+                tabelTransaksiBody.addEventListener('click', function(event){
+                    const target = event.target.closest('.delete-transaksi-btn');
+                    if(target){
+                        hapusTransaksi(target.dataset.id);
+                    }
+                });
+            }
+
+            if(filterKategoriStok) filterKategoriStok.addEventListener('change', e => { renderTabelStok(); renderRingkasanStok(); });
+            if(searchNamaBahanInput) searchNamaBahanInput.addEventListener('input', e => { renderTabelStok(); });
+            if(filterKategoriLaporan) filterKategoriLaporan.addEventListener('change', e => renderLaporanStok());
+            if(cetakLaporanButton) cetakLaporanButton.addEventListener('click', handleCetakLaporan);
+
+            // Event listener for GW credential change form
+            if (formUbahKredensialGW) {
+                formUbahKredensialGW.addEventListener('submit', handleSubmitUbahKredensialGW);
+            }
+
+        });
+    </script>
+</body>
+</html>
